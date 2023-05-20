@@ -8,7 +8,7 @@ app.use(cors())
 app.use(express.json())
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion ,ObjectId} = require('mongodb');
 const uri =`mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ac-mvazqsy-shard-00-00.hpy6sqt.mongodb.net:27017,ac-mvazqsy-shard-00-01.hpy6sqt.mongodb.net:27017,ac-mvazqsy-shard-00-02.hpy6sqt.mongodb.net:27017/?ssl=true&replicaSet=atlas-vll8ae-shard-0&authSource=admin&retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -29,11 +29,44 @@ async function run() {
   const alltoysCollection = database.collection("alltoys");
   //---------------
 
+  //ADD TOY---------------------
+  const databas = client.db("AddtoysDB");
+  const addtoysCollection = databas.collection("addtoys");
+//   ------------------
+
+
+//   all toys-----------------------------------------
   app.get('/alltoys', async(req,res)=>{
     const cursor = alltoysCollection.find();
     const result = await cursor.toArray()
     res.send(result)
   })
+
+
+  app.get('/alltoys/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await alltoysCollection.findOne(query)
+  res.send(result)
+  })
+//   ----------------------------------
+
+// Add toys---------------------
+app.post('/addtoys', async(req,res)=>{
+    const newtoys =  req.body;
+    console.log(newtoys)
+    
+    const result = await addtoysCollection.insertOne(newtoys);
+    res.send(result)
+})
+
+app.get('/addtoys', async(req,res)=>{
+  const cursor = addtoysCollection.find();
+  const result = await cursor.toArray()
+  res.send(result)
+})
+
+// ---------------------
 
 
 
