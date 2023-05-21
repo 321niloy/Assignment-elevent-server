@@ -67,18 +67,27 @@ async function run() {
     //JWT
 
 //   all toys-----------------------------------------
-  app.get(`/alltoys`, async(req,res)=>{
-    console.log(req.params.pricesort)
-    // if(req.params.pricesort === lowto){
-    //   const cursor = alltoysCollection.find({}).sort({ price: 1 })
-    //   const result = await cursor.toArray()
-    //   return res.send(result)
+  app.get("/alltoys/:text", async(req,res)=>{
+    console.log(req.params.text)
+    
+    if(req.params.text === "lowto"){
+      const cursor = alltoysCollection.find({}).sort({ price: 1 })
+      const result = await cursor.toArray()
+      return res.send(result)
 
-    // }
+    }
+    else if(req.params.text === "highto"){
+      const cursor = alltoysCollection.find({}).sort({ price: -1 })
+      const result = await cursor.toArray()
+      return res.send(result)
+
+    }
    
+   else{
     const cursor = alltoysCollection.find({}).limit(20);
     const result = await cursor.toArray()
     res.send(result)
+   }
    
   })
 
