@@ -127,12 +127,14 @@ const query = { email: email};
   const result = await cursor.toArray()
   res.send(result)
 })
+// add single toy
 app.get('/addtoys/:id',async(req,res)=>{
   const id = req.params.id
   const query = { _id: new ObjectId(id)};
   const result = await addtoysCollection.findOne(query);
   res.send(result)
   })
+  // end single toy
 
 app.delete('/addtoys/:id',async(req,res)=>{
   const id = req.params.id
@@ -140,7 +142,7 @@ app.delete('/addtoys/:id',async(req,res)=>{
   const result = await addtoysCollection.deleteOne(query);
   res.send(result);
    })
-
+// start update
    app.put('/update/:id', async(req,res) =>{
     const id = req.params.id;
     const updateToys = req.body
@@ -163,7 +165,7 @@ app.delete('/addtoys/:id',async(req,res)=>{
       const result = await addtoysCollection.updateOne(filter, update, options);
       res.send(result)
  })
-
+// end update
 // ---------------------
 // all TOYS SEARCH
 
