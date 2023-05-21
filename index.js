@@ -91,10 +91,7 @@ async function run() {
    
   })
 
-  // low to high sort
-  app.get('/alltoyslowtohigh', async(req,res)=>{
-   
-  })
+  
   // --------
 
 
