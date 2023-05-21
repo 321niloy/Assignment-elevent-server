@@ -36,11 +36,26 @@ async function run() {
 
 
 //   all toys-----------------------------------------
-  app.get('/alltoys', async(req,res)=>{
-    const cursor = alltoysCollection.find();
+  app.get(`/alltoys`, async(req,res)=>{
+    console.log(req.params.pricesort)
+    // if(req.params.pricesort === lowto){
+    //   const cursor = alltoysCollection.find({}).sort({ price: 1 })
+    //   const result = await cursor.toArray()
+    //   return res.send(result)
+
+    // }
+   
+    const cursor = alltoysCollection.find({}).limit(20);
     const result = await cursor.toArray()
     res.send(result)
+   
   })
+
+  // low to high sort
+  app.get('/alltoyslowtohigh', async(req,res)=>{
+   
+  })
+  // --------
 
 
   app.get('/alltoys/:id', async(req,res)=>{
@@ -65,8 +80,47 @@ app.get('/addtoys', async(req,res)=>{
   const result = await cursor.toArray()
   res.send(result)
 })
+app.get('/addtoys/:id',async(req,res)=>{
+  const id = req.params.id
+  const query = { _id: new ObjectId(id)};
+  const result = await addtoysCollection.findOne(query);
+  res.send(result)
+  })
+
+app.delete('/addtoys/:id',async(req,res)=>{
+  const id = req.params.id
+  const query = {_id: new ObjectId(id)};
+  const result = await addtoysCollection.deleteOne(query);
+  res.send(result);
+   })
+
+   app.put('/update/:id', async(req,res) =>{
+    const id = req.params.id;
+    const updateToys = req.body
+    console.log(updateToys )
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const update = {
+        $set: {
+          Name:updateToys.Name,
+          Sellername:updateToys.Sellername,
+          Selleremail:updateToys. Selleremail,
+          subcategory:updateToys.subcategory,
+          price:updateToys.price,
+          rating:updateToys.rating,
+          quantity:updateToys.quantity,
+          area:updateToys.area,
+          photo:updateToys.photo
+        },
+      };
+      const result = await addtoysCollection.updateOne(filter, update, options);
+      res.send(result)
+ })
 
 // ---------------------
+// all TOYS SEARCH
+
+// ----------------------
 
 
 
