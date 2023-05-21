@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+var jwt = require('jsonwebtoken');
 var cors = require('cors')
 require('dotenv').config()
 const port =process.env.PORT ||  3000
@@ -20,10 +21,31 @@ const client = new MongoClient(uri, {
   }
 });
 
+const verifyJWT = (req,res,next) =>{
+  console.log('hitting verify JWT')
+  console.log("athor",req.headers.athorization);
+  const athorization = req.headers.athorization;
+  if(!athorization){
+   return res.status(401).send({error:true, messege:'unathorized access'})
+  }
+ 
+  const token = athorization.split(' ')[1];
+  console.log('token inside verify JWT//',token)
+  jwt.verify(token,process.env.AC_TOKEN_SECRETE, (error,decoded) =>{
+      if(error){
+       return res.status(403).send({error:true, messege:'unathorized access'})
+      }
+      req.decoded=decoded;
+      next()
+  })
+ }
+ 
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    
   //for all toys
   const database = client.db("AlltoysDB");
   const alltoysCollection = database.collection("alltoys");
@@ -33,7 +55,16 @@ async function run() {
   const databas = client.db("AddtoysDB");
   const addtoysCollection = databas.collection("addtoys");
 //   ------------------
-
+  //JWT
+  app.post('/jwt',(req,res)=>{
+    
+    const user = req.body;
+    console.log("ss",user)
+    var token = jwt.sign(user,process.env.AC_TOKEN_SECRETE,{expiresIn: '2h' })
+    console.log(token)
+    res.send({token})
+  })
+    //JWT
 
 //   all toys-----------------------------------------
   app.get(`/alltoys`, async(req,res)=>{
@@ -75,8 +106,18 @@ app.post('/addtoys', async(req,res)=>{
     res.send(result)
 })
 
-app.get('/addtoys', async(req,res)=>{
-  const cursor = addtoysCollection.find();
+app.get(`/addtoys/:email`,verifyJWT, async(req,res)=>{
+  console.log('para',req.params.email)
+console.log("nnnn",req.query.email)
+console.log("OOOO",req.decoded.email)
+const decoded = req.decoded
+console.log("Came back after verify",decoded);
+if(decoded.email !== req.params.email){
+  return res.status(403).send({error:1, message:"forbidden"})
+}
+const email = req.params.email
+const query = { email: email};
+  const cursor = addtoysCollection.find(query);
   const result = await cursor.toArray()
   res.send(result)
 })
